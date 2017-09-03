@@ -34,7 +34,7 @@ class Screenshot(QtGui.QWidget):
         self.format = 'png'
         self.setSaveLocation = False
         self.savePath = ""
-        self.saveCounter = 1
+        self.saveCounter = 0
 
     def resizeEvent(self, event):
         scaledSize = self.originalPixmap.size()
@@ -53,7 +53,7 @@ class Screenshot(QtGui.QWidget):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save As",
                                                      initialPath,
                                                      "%s Files (*.%s);;All Files (*)" % (
-                                                     self.format.upper(), self.format))
+                                                         self.format.upper(), self.format))
         if fileName:
             self.originalPixmap.save(fileName, self.format)
             self.setSaveLocation = True
@@ -63,9 +63,24 @@ class Screenshot(QtGui.QWidget):
         if not self.setSaveLocation:
             self.saveScreenshotAs()
         else:
-            pass
-            # lastNum =
-            # self.originalPixmap.save()
+            try:
+                lastNum = int(self.savePath.split("(")[-1].replace(').png', ""))
+
+            except ValueError:
+                lastNum = 0
+
+            if lastNum != self.saveCounter:
+                self.saveCounter = lastNum
+
+            self.saveCounter += 1
+
+            if self.saveCounter == 1:
+                self.savePath = self.savePath.replace(".png", "(1).png")
+                self.originalPixmap.save(self.savePath, self.format)
+
+            else:
+                self.savePath = self.savePath.replace(str(self.saveCounter - 1), str(self.saveCounter))
+                self.originalPixmap.save(self.savePath, self.format)
 
     def shootScreen(self):
 
