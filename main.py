@@ -4,10 +4,6 @@ from PyQt4.QtGui import *
 from PyQt4 import QtCore, QtGui
 
 import time
-import webbrowser
-
-# txt = open('config.txt')
-# lines = txt.readlines()
 
 
 class Screenshot(QtGui.QWidget):
@@ -30,11 +26,15 @@ class Screenshot(QtGui.QWidget):
         self.setLayout(mainLayout)
 
         self.shootScreen()
-        # self.delaySpinBox.setValue(int(lines[1]))
 
-        self.setWindowTitle("Screeney Screenshot Utility")
+        self.setWindowTitle("Mushroom Snapshot Tool")
         self.resize(300, 200)
         self.setWindowIcon(QtGui.QIcon('icon.png'))
+
+        self.format = 'png'
+        self.setSaveLocation = False
+        self.savePath = ""
+        self.saveCounter = 1
 
     def resizeEvent(self, event):
         scaledSize = self.originalPixmap.size()
@@ -42,70 +42,80 @@ class Screenshot(QtGui.QWidget):
         if not self.screenshotLabel.pixmap() or scaledSize != self.screenshotLabel.pixmap().size():
             self.updateScreenshotLabel()
 
-    def aboutButton(self):
-        webbrowser.open('http://starlightgraphics.tuxfamily.org/product/screeney/')
-
     def newScreenshot(self):
-        if self.hideThisWindowCheckBox.isChecked():
-            self.hide()
-        self.newScreenshotButton.setDisabled(True)
 
-        QtCore.QTimer.singleShot(self.delaySpinBox.value() * 1000,
-                                 self.shootScreen)
+        QtCore.QTimer.singleShot(0, self.shootScreen)
 
-    def saveScreenshot(self):
-        format = 'png'
-        initialPath = QtCore.QDir.currentPath() + "/untitled." + format
+    def saveScreenshotAs(self):
+
+        initialPath = QtCore.QDir.currentPath() + "/untitled." + self.format
 
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save As",
                                                      initialPath,
-                                                     "%s Files (*.%s);;All Files (*)" % (format.upper(), format))
+                                                     "%s Files (*.%s);;All Files (*)" % (
+                                                     self.format.upper(), self.format))
         if fileName:
-            self.originalPixmap.save(fileName, format)
+            self.originalPixmap.save(fileName, self.format)
+            self.setSaveLocation = True
+            self.savePath = fileName
+
+    def saveScreenshot(self):
+        if not self.setSaveLocation:
+            self.saveScreenshotAs()
+        else:
+            pass
+            # lastNum =
+            # self.originalPixmap.save()
 
     def shootScreen(self):
-        if self.delaySpinBox.value() != 0:
-            QtGui.qApp.beep()
 
         # Garbage collect any existing image first.
         self.originalPixmap = None
-        self.originalPixmap = QtGui.QPixmap.grabWindow(QtGui.QApplication.desktop().winId())
+
+        # temp testing variables
+        x = 100
+        y = 100
+
+        self.originalPixmap = QtGui.QPixmap.grabWindow(QApplication.desktop().winId(), x, y, self.width.value(),
+                                                       self.height.value())
+
         self.updateScreenshotLabel()
 
         self.newScreenshotButton.setDisabled(False)
-        if self.hideThisWindowCheckBox.isChecked():
-            self.show()
-
-    def updateCheckBox(self):
-        if self.delaySpinBox.value() == 0:
-            self.hideThisWindowCheckBox.setDisabled(True)
-        else:
-            self.hideThisWindowCheckBox.setDisabled(False)
 
     def createOptionsGroupBox(self):
         self.optionsGroupBox = QtGui.QGroupBox("Options")
 
-        self.delaySpinBox = QtGui.QSpinBox()
-        self.delaySpinBox.setSuffix(" s")
-        self.delaySpinBox.setMaximum(60)
-        self.delaySpinBox.valueChanged.connect(self.updateCheckBox)
+        self.width = QtGui.QSpinBox()
+        self.width.setSuffix(" pixels")
+        self.width.setMaximum(10000)
+        self.width.setValue(100)
 
-        self.delaySpinBoxLabel = QtGui.QLabel("Screenshot Delay:")
+        self.widthLabel = QtGui.QLabel("Width:")
 
-        self.hideThisWindowCheckBox = QtGui.QCheckBox("Hide This Window")
+        self.height = QtGui.QSpinBox()
+        self.height.setSuffix(" pixels")
+        self.height.setMaximum(10000)
+        self.height.setValue(100)
+
+        self.heightLabel = QtGui.QLabel("Height")
 
         optionsGroupBoxLayout = QtGui.QGridLayout()
-        optionsGroupBoxLayout.addWidget(self.delaySpinBoxLabel, 0, 0)
-        optionsGroupBoxLayout.addWidget(self.delaySpinBox, 0, 1)
-        optionsGroupBoxLayout.addWidget(self.hideThisWindowCheckBox, 1, 0, 1, 2)
+        optionsGroupBoxLayout.addWidget(self.widthLabel, 0, 0)
+        optionsGroupBoxLayout.addWidget(self.width, 0, 1)
+
+        optionsGroupBoxLayout.addWidget(self.heightLabel, 1, 0)
+        optionsGroupBoxLayout.addWidget(self.height, 1, 1)
+
         self.optionsGroupBox.setLayout(optionsGroupBoxLayout)
 
     def createButtonsLayout(self):
-        self.aboutButton = self.createButton("About",
-                                             self.aboutButton)
 
         self.newScreenshotButton = self.createButton("New Screenshot",
                                                      self.newScreenshot)
+
+        self.saveScreenshotAsButton = self.createButton("Save Screenshot As",
+                                                        self.saveScreenshotAs)
 
         self.saveScreenshotButton = self.createButton("Save Screenshot",
                                                       self.saveScreenshot)
@@ -114,8 +124,8 @@ class Screenshot(QtGui.QWidget):
 
         self.buttonsLayout = QtGui.QHBoxLayout()
         self.buttonsLayout.addStretch()
-        self.buttonsLayout.addWidget(self.aboutButton)
         self.buttonsLayout.addWidget(self.newScreenshotButton)
+        self.buttonsLayout.addWidget(self.saveScreenshotAsButton)
         self.buttonsLayout.addWidget(self.saveScreenshotButton)
         self.buttonsLayout.addWidget(self.quitScreenshotButton)
 
@@ -135,28 +145,12 @@ if __name__ == '__main__':
     import sys
 
     app = QtGui.QApplication(sys.argv)
-    # Create and display the splash screen
-    splash_pix = QPixmap('splash.png')
 
-    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
-    # adding progress bar
-    progressBar = QProgressBar(splash)
-    progressBar.resize(800, 25)
-    progressBar.move(0, 475)
-
-    splash.setMask(splash_pix.mask())
-
-    splash.show()
     for i in range(0, 100):
-        progressBar.setValue(i)
         t = time.time()
         while time.time() < t + 0.01:
             app.processEvents()
 
-    # Simulate something that takes time
-    time.sleep(1)
-
     screenshot = Screenshot()
     screenshot.show()
-    splash.finish(screenshot)
     sys.exit(app.exec_())
