@@ -42,6 +42,25 @@ class Screenshot(QtGui.QWidget):
         if not self.screenshotLabel.pixmap() or scaledSize != self.screenshotLabel.pixmap().size():
             self.updateScreenshotLabel()
 
+    def keyPressEvent(self, event):
+        if type(event) == QtGui.QKeyEvent:
+            # here accept the event and do something
+            print(event.key())
+            if event.key() == 87:
+                self.y -= self.slideSpeed.value()
+            elif event.key() == 65:
+                self.x -= self.slideSpeed.value()
+            elif event.key() == 83:
+                self.y += self.slideSpeed.value()
+            elif event.key() == 68:
+                self.x += self.slideSpeed.value()
+            self.newScreenshot()
+
+
+            event.accept()
+        else:
+            event.ignore()
+
     def newScreenshot(self):
 
         QtCore.QTimer.singleShot(0, self.shootScreen)
@@ -87,11 +106,8 @@ class Screenshot(QtGui.QWidget):
         # Garbage collect any existing image first.
         self.originalPixmap = None
 
-        # temp testing variables
-        x = 100
-        y = 100
-
-        self.originalPixmap = QtGui.QPixmap.grabWindow(QApplication.desktop().winId(), x, y, self.width.value(),
+        self.originalPixmap = QtGui.QPixmap.grabWindow(QApplication.desktop().winId(), self.x, self.y,
+                                                       self.width.value(),
                                                        self.height.value())
 
         self.updateScreenshotLabel()
@@ -99,6 +115,10 @@ class Screenshot(QtGui.QWidget):
         self.newScreenshotButton.setDisabled(False)
 
     def createOptionsGroupBox(self):
+
+        self.x = 100
+        self.y = 100
+
         self.optionsGroupBox = QtGui.QGroupBox("Options")
 
         self.width = QtGui.QSpinBox()
@@ -115,12 +135,23 @@ class Screenshot(QtGui.QWidget):
 
         self.heightLabel = QtGui.QLabel("Height")
 
+        self.slideSpeed = QtGui.QSpinBox()
+        self.slideSpeed.setSuffix(" pixels")
+        self.slideSpeed.setMaximum(100)
+        self.slideSpeed.setValue(2)
+
+        self.slideSpeedLabel = QtGui.QLabel("Slide Speed")
+
         optionsGroupBoxLayout = QtGui.QGridLayout()
+
         optionsGroupBoxLayout.addWidget(self.widthLabel, 0, 0)
         optionsGroupBoxLayout.addWidget(self.width, 0, 1)
 
         optionsGroupBoxLayout.addWidget(self.heightLabel, 1, 0)
         optionsGroupBoxLayout.addWidget(self.height, 1, 1)
+
+        optionsGroupBoxLayout.addWidget(self.slideSpeedLabel, 2, 0)
+        optionsGroupBoxLayout.addWidget(self.slideSpeed, 2, 1)
 
         self.optionsGroupBox.setLayout(optionsGroupBoxLayout)
 
