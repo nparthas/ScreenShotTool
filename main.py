@@ -44,8 +44,7 @@ class Screenshot(QtGui.QWidget):
 
     def keyPressEvent(self, event):
         if type(event) == QtGui.QKeyEvent:
-            # here accept the event and do something
-            print(event.key())
+
             if event.key() == 87:
                 self.y -= self.slideSpeed.value()
             elif event.key() == 65:
@@ -55,7 +54,6 @@ class Screenshot(QtGui.QWidget):
             elif event.key() == 68:
                 self.x += self.slideSpeed.value()
             self.newScreenshot()
-
 
             event.accept()
         else:
@@ -145,7 +143,7 @@ class Screenshot(QtGui.QWidget):
         optionsGroupBoxLayout = QtGui.QGridLayout()
 
         optionsGroupBoxLayout.addWidget(self.widthLabel, 0, 0)
-        optionsGroupBoxLayout.addWidget(self.width, 0, 1)
+        optionsGroupBoxLayout.addWidget(self.width, 0, 1)  # change to auto update
 
         optionsGroupBoxLayout.addWidget(self.heightLabel, 1, 0)
         optionsGroupBoxLayout.addWidget(self.height, 1, 1)
