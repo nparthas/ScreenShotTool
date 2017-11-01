@@ -17,7 +17,7 @@ class ScreenshotMainWindow(MainWindowBase, ScreenShotBase):
         self.createOptionsGroupBox()
         self.createButtonsLayout()
 
-        self.main_layout.addWidget(self.optionsGroupBox)
+        self.main_layout.addWidget(self.options_group_box)
         self.main_layout.addLayout(self.buttons_layout)
         self.setLayout(self.main_layout)
 
@@ -26,7 +26,7 @@ class ScreenshotMainWindow(MainWindowBase, ScreenShotBase):
         self.resize(400, 250)
         self.setWindowTitle("Mushroom Snapshot Tool")
 
-        self.setWindowIcon(QtGui.QIcon('icon.png'))
+        self.setWindowIcon(QtGui.QIcon('resources/icon.png'))
 
         self.click_capture_window = click_capture_window
 
@@ -50,6 +50,8 @@ class ScreenshotMainWindow(MainWindowBase, ScreenShotBase):
 
         self.slide_speed_label = QtWidgets.QLabel("Slide Speed")
 
+        self.rectangle_width_label = QtWidgets.QLabel("Click Capture Rectangle Width")
+
         options_group_box_layout = QtWidgets.QGridLayout()
 
         options_group_box_layout.addWidget(self.width_label, 0, 0)
@@ -61,7 +63,10 @@ class ScreenshotMainWindow(MainWindowBase, ScreenShotBase):
         options_group_box_layout.addWidget(self.slide_speed_label, 2, 0)
         options_group_box_layout.addWidget(self.slide_speed, 2, 1)
 
-        self.optionsGroupBox.setLayout(options_group_box_layout)
+        options_group_box_layout.addWidget(self.rectangle_width_label, 3, 0)
+        options_group_box_layout.addWidget(self.info_class.rectangle_width, 3, 1)
+
+        self.options_group_box.setLayout(options_group_box_layout)
 
     def createButtonsLayout(self):
 

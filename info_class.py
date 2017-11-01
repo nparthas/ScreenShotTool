@@ -15,3 +15,7 @@ class InfoClass(object):
         self.height.setSuffix(" pixels")
         self.height.setMaximum(10000)
         self.height.setValue(100)
+
+        self.rectangle_width = QtWidgets.QSpinBox()
+        self.rectangle_width.setMaximum(20)
+        self.rectangle_width.setValue(5)

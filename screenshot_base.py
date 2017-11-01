@@ -24,7 +24,11 @@ class ScreenShotBase(QtWidgets.QWidget):
                                                       self.format.upper(), self.format))
 
         if fileName:
-            self.originalPixmap.save(fileName, self.format)
+            result = self.originalPixmap.save(fileName, self.format)
+
+            if result is False:
+                raise Exception("Save Screen Shot As failed to save")
+
             self.setSaveLocation = True
             self.savePath = fileName
 
@@ -45,11 +49,13 @@ class ScreenShotBase(QtWidgets.QWidget):
 
             if self.saveCounter == 1:
                 self.savePath = self.savePath.replace(".png", "(1).png")
-                self.originalPixmap.save(self.savePath, self.format)
 
             else:
                 self.savePath = self.savePath.replace(str(self.saveCounter - 1), str(self.saveCounter))
-                self.originalPixmap.save(self.savePath, self.format)
+
+            result = self.originalPixmap.save(self.savePath, self.format)
+            if result is False:
+                raise Exception("Save Screenshot failed to save")
 
     def shootScreen(self):
 
@@ -62,4 +68,4 @@ class ScreenShotBase(QtWidgets.QWidget):
 
         self.updateScreenshotLabel()
 
-        self.newScreenshotButton.setDisabled(False)
+        self.new_screenshot_button.setDisabled(False)

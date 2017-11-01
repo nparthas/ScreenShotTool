@@ -1,4 +1,5 @@
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5.QtGui import QPixmap, QColor, QCursor
 
 from info_class import InfoClass
 
@@ -11,8 +12,6 @@ class ClickCaptureWindow(QtWidgets.QWidget):
         self.resize(400, 400)
         self.setWindowTitle(" ")
 
-        # can change later to make borderless and be able to move around
-        # self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setWindowOpacity(0.3)
 
         self.setMouseTracking(True)
@@ -20,51 +19,56 @@ class ClickCaptureWindow(QtWidgets.QWidget):
         self.local_width = self.info_class.width.value()
         self.local_height = self.info_class.height.value()
 
-        self.change_width = False
-        self.change_height = False
+        self.update = False
 
         self.pixmap = None
-        self.update_cursor()
 
-        self.setWindowIcon(QtGui.QIcon('icon.png'))
+        self.local_rectangle_width = 5
+
+        self.updateCursor()
+
+        self.setWindowIcon(QtGui.QIcon('resources/icon.png'))
 
     def mouseMoveEvent(self, event):
 
-        if event == QtGui.QMouseEvent:
+        if self.local_width != self.info_class.width.value():
+            self.update = True
 
-            if self.local_width != self.info_class.width.value():
-                self.change_width = True
+        if self.local_height != self.info_class.height.value():
+            self.update = True
 
-            if self.local_height != self.info_class.height.value():
-                self.change_height = True
+        if self.local_rectangle_width != self.info_class.rectangle_width.value():
+            self.update = True
 
-            if self.change_width or self.change_height:
-                self.update_cursor()
-                self.change_width = False
-                self.change_height = False
+        if self.update:
+            self.updateCursor()
+            self.update = False
 
-            event.accpet()
+            event.accept()
         else:
             event.ignore()
 
-    def mousePressEvent(self, QMouseEvent):
+    def mousePressEvent(self, event):
         print("pressed")
 
-    def update_cursor(self):
+    def updateCursor(self):
 
-        # self.local_height = self.info_class.height.value()
-        # self.local_width = self.info_class.width.value()
-        #
-        # self.pixmap = QtGui.QPixmap()
-        # self.pixmap.height = self.local_height
-        # self.pixmap.width = self.local_width
-        #
-        # self.pixmap.createMaskFromColor()
-        # self.pixmap.colo
-        pass
+        self.local_height = self.info_class.height.value()
+        self.local_width = self.info_class.width.value()
+        self.local_rectangle_width = self.info_class.rectangle_width.value()
 
-        # self.pixmap = QPixmap("test.jpg")
-        # QtGui.QPixmap("test.jpg")
+        self.pixmap = QPixmap(self.local_width, self.local_height)
+        self.pixmap.fill(QColor(0, 0, 0, 0))
+
+        painter_instance = QtGui.QPainter(self.pixmap)
+
+        pen_rectangle = QtGui.QPen(QtCore.Qt.darkBlue)  # can change color of the rectangle here
+        pen_rectangle.setWidth(self.local_rectangle_width)
+
+        painter_instance.setPen(pen_rectangle)
+        painter_instance.drawRect(0, 0, self.local_width, self.local_height)
+
+        self.setCursor(QCursor(self.pixmap))
 
 
 if __name__ == '__main__':
