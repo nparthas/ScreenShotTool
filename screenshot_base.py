@@ -1,6 +1,8 @@
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import (QApplication, QFileDialog)
 
+import os
+
 
 class ScreenShotBase(QtWidgets.QWidget):
     def __init__(self):
@@ -45,17 +47,18 @@ class ScreenShotBase(QtWidgets.QWidget):
             if lastNum != self.saveCounter:
                 self.saveCounter = lastNum
 
-            self.saveCounter += 1
-
-            if self.saveCounter == 1:
+            if self.saveCounter == 0:
                 self.savePath = self.savePath.replace(".png", "(1).png")
 
-            else:
-                self.savePath = self.savePath.replace(str(self.saveCounter - 1), str(self.saveCounter))
+            while os.path.exists(self.savePath):
+                self.savePath = self.savePath.replace(str(self.saveCounter), str(self.saveCounter + 1))
+                self.saveCounter += 1
 
             result = self.originalPixmap.save(self.savePath, self.format)
             if result is False:
                 raise Exception("Save Screenshot failed to save")
+
+            self.saveCounter += 1
 
     def shootScreen(self):
 

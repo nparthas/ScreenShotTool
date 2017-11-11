@@ -1,3 +1,5 @@
 workspace.xml
 tasks.xml
 testing.py
+shots/
+__pycache__/
